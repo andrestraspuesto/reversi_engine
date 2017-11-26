@@ -12,7 +12,7 @@ defmodule ReversiEngine.EvaluatorTest do
 
     board = Application.get_env(:reversi_engine, :board_1)[:value]
     m = Evaluator.calc_movements(board, "B")
-  
+
     is_same(m, expected)
   end
 
@@ -30,9 +30,6 @@ defmodule ReversiEngine.EvaluatorTest do
   end
 
   defp is_same(l1, l2) do
-    length(Enum.uniq(l1 ++ l2)) == length(l1)
-    |> assert
-
-    assert Enum.all?(l1, &Enum.member?(l2, &1))
+    assert length(Enum.uniq(l1 ++ l2)) == length(l1) && Enum.all?(l1, &Enum.member?(l2, &1))
   end
 end
