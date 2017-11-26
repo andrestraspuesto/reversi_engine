@@ -4,7 +4,7 @@ config :reversi_engine, :board_1, value: {
   {nil, nil, nil, nil},
   {nil, "B", "W", nil},
   {nil, "W", "B", nil},
-  {nil, nil, nil, nil},
+  {nil, nil, nil, nil}
 }
 
 config :reversi_engine, :board_2, value: {

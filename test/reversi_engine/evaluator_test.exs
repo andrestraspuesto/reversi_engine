@@ -1,6 +1,7 @@
 defmodule ReversiEngine.EvaluatorTest do
   use ExUnit.Case
-  alias ReversiEngine.Evaluator
+  doctest ReversiEngine.Evaluator
+  alias ReversiEngine.{Evaluator, MovementValidator}
 
 
 
@@ -11,7 +12,7 @@ defmodule ReversiEngine.EvaluatorTest do
     ]
 
     board = Application.get_env(:reversi_engine, :board_1)[:value]
-    m = Evaluator.calc_movements(board, "B")
+    m = Evaluator.calc_movements(board, "B", &MovementValidator.validate_movement/3)
 
     is_same(m, expected)
   end
@@ -24,7 +25,7 @@ defmodule ReversiEngine.EvaluatorTest do
     ]
 
     board = Application.get_env(:reversi_engine, :board_3)[:value]
-    m = Evaluator.calc_movements(board, "B")
+    m = Evaluator.calc_movements(board, "B", &MovementValidator.validate_movement/3)
 
     is_same(m, expected)
   end
