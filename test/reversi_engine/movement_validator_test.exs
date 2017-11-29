@@ -1,6 +1,6 @@
 defmodule ReversiEngine.MovementValidatorTest do
   use ExUnit.Case
-
+  doctest ReversiEngine.MovementValidator
   alias ReversiEngine.MovementValidator
 
   @board_1  Application.get_env(:reversi_engine, :board_1)[:value]

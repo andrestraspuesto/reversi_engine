@@ -3,7 +3,16 @@ defmodule ReversiEngine.Counter do
 Contiene la funcionalidad para obtener el estado de la partida
 """
   @doc """
-  Devuelve el conteo de las fichas de cada jugador y las vacías
+  Devuelve cuenta las casillas de cada jugador y las vacías en el tablero que
+  se le pasa como argumento.
+
+  ##Argumentos:
+  - board: tupla de tuplas, que representan las filas que componen el tablero.
+
+  ##Ejemplo:
+      iex> board = {{nil, nil, nil, nil},{nil, "B", "W", nil},{nil, "W", "B", nil},{nil, nil, nil, nil}}
+      iex> ReversiEngine.Counter.count(board)
+      %{nil => 12, "B" => 2, "W" => 2}
   """
   def count(board) do
     board

@@ -1,5 +1,8 @@
 defmodule ReversiEngine.MovementValidator do
-
+@moduledoc """
+Contiene la funcionalidad encargada de determinar las casillas que cambiarán
+de color al colocar una ficha en unas coordenadas determinadas
+"""
   alias ReversiEngine.MovementValidator, as: Worker
 
   @step_list [
@@ -13,9 +16,27 @@ defmodule ReversiEngine.MovementValidator do
     %{x: 1, y: 1}
   ]
 
+  @doc """
+  Devuelve las casillas que cambian de color al colocar una ficha de un color
+  dado en una posición determinada sobre un tablero.
+
+  ##Argumentos:
+    - board: tupla de tuplas que representa al tablero, donde nil implica que la
+    posición está vacía y un string indica el color.
+    - color: string que indica el color que se va a colorcar
+    - coord: mapa con las coordenadas donde se quiere poner la ficha donde x es
+    la columna e y la fila estándo el 0 en la esquina superior izquierda.
+
+  ##Ejemplo:
+      iex> board = {{nil, nil, nil, nil},{nil, "B", "W", nil},{nil, "W", "B", nil},{nil, nil, nil, nil}}
+      iex> color = "B"
+      iex> coord = %{x: 0, y: 2}
+      iex> ReversiEngine.MovementValidator.validate_movement(board, color, coord)
+      [%{x: 1, y: 2}]
+  """
   def validate_movement(board, color, coord) when not is_nil(color) do
     case get_color(board, coord) do
-      nil -> full_validation(board, color, coord)
+      nil -> async_validation(board, color, coord)
       _ -> []
     end
 
@@ -23,7 +44,7 @@ defmodule ReversiEngine.MovementValidator do
 
 
 
-  def is_valid(board, color, coord, step, n_steps, colored \\ []) do
+  def validate_movement(board, color, coord, step, n_steps, colored \\ []) do
     case in_range(board, coord) do
       false ->
         []
@@ -34,23 +55,23 @@ defmodule ReversiEngine.MovementValidator do
           nil ->
             []
           _ ->
-            is_valid(board, color, next_step(coord, step), step, n_steps + 1,
+            validate_movement(board, color, next_step(coord, step), step, n_steps + 1,
             [coord] ++ colored)
         end
     end
 
   end
 
-  defp full_validation(board, color, coord) do
+  defp async_validation(board, color, coord) do
       @step_list
       |> Enum.map(&Task.async(fn ->
-        Worker.is_valid(board, color, next_step(coord, &1), &1, 0)
+        Worker.validate_movement(board, color, next_step(coord, &1), &1, 0)
       end))
       |> Enum.map(&Task.await/1)
       |> Enum.reduce(&(&1 ++ &2))
   end
 
-  def in_range(board, %{x: x, y: y}) do
+  defp in_range(board, %{x: x, y: y}) do
     x_ok = x >= 0 && x < tuple_size(board)
     y_ok = y >= 0 && y < tuple_size(board)
 
