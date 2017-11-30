@@ -30,7 +30,8 @@ defmodule ReversiEngine.Mixfile do
     [
       {:excoveralls, "~> 0.5", only: :test},
       {:ex_doc, "~>0.12"},
-      {:earmark, "~> 1.0", override: true}
+      {:earmark, "~> 1.0", override: true},
+      {:gen_state_machine, "~> 2.0"}
     ]
   end
 end
