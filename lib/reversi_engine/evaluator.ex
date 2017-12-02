@@ -37,7 +37,7 @@ defmodule ReversiEngine.Evaluator do
 
   """
   def calc_movements(board, color, validator) do
-    0..tuple_size(board)-1
+    0..tuple_size(board) - 1
     |> Enum.map(
       &Task.async(
         fn ->
@@ -51,7 +51,7 @@ defmodule ReversiEngine.Evaluator do
 
 
   def analyze_row(board, color, row, y, validator) do
-    0..tuple_size(row)-1
+    0..tuple_size(row) - 1
     |> Enum.filter(&is_nil(elem(row, &1)))
     |> Enum.map(
       &Task.async(

@@ -5,6 +5,14 @@ de color al colocar una ficha en unas coordenadas determinadas
 """
   alias ReversiEngine.MovementValidator, as: Worker
 
+  defmodule StepState do
+    @moduledoc """
+    Contiene la información necesaria para identificar la dirección y el número
+    de casillas analizados
+    """
+    defstruct direction: nil, n_steps: 0
+  end
+
   @step_list [
     %{x: -1, y: 0},
     %{x: 1, y: 0},
@@ -44,7 +52,7 @@ de color al colocar una ficha en unas coordenadas determinadas
 
 
 
-  def validate_movement(board, color, coord, step, n_steps, colored \\ []) do
+  def validate_movement(board, color, coord, step_state, colored \\ []) do
     case in_range(board, coord) do
       false ->
         []
@@ -55,8 +63,13 @@ de color al colocar una ficha en unas coordenadas determinadas
           nil ->
             []
           _ ->
-            validate_movement(board, color, next_step(coord, step), step, n_steps + 1,
-            [coord] ++ colored)
+            n_state = %StepState{
+              direction: step_state.direction,
+              n_steps: step_state.n_steps + 1
+            }
+            n_coord = next_step(coord, step_state.direction)
+            n_colored = [coord] ++ colored
+            validate_movement(board, color, n_coord, n_state, n_colored)
         end
     end
 
@@ -65,7 +78,11 @@ de color al colocar una ficha en unas coordenadas determinadas
   defp async_validation(board, color, coord) do
       @step_list
       |> Enum.map(&Task.async(fn ->
-        Worker.validate_movement(board, color, next_step(coord, &1), &1, 0)
+        n_state = %StepState{
+          direction: &1,
+          n_steps: 0
+        }
+        Worker.validate_movement(board, color, next_step(coord, &1), n_state)
       end))
       |> Enum.map(&Task.await/1)
       |> Enum.reduce(&(&1 ++ &2))
