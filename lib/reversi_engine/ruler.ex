@@ -11,10 +11,10 @@ defmodule ReversiEngine.Ruler do
   ##Ejemplo
         iex>{:ok, pid} = ReversiEngine.Ruler.start_link()
         iex>ReversiEngine.Ruler.show_state(pid)
-        :white_turn
+        :white
   """
   def start_link do
-    GenStateMachine.start_link(__MODULE__, {:white_turn, %{}})
+    GenStateMachine.start_link(__MODULE__, {:white, %{}})
   end
 
   @doc """
@@ -38,7 +38,7 @@ defmodule ReversiEngine.Ruler do
         iex>ReversiEngine.Ruler.move(pid, :white)
         :ok
         iex>ReversiEngine.Ruler.show_state(pid)
-        :black_turn
+        :black
         iex>ReversiEngine.Ruler.move(pid, :white)
         :error
         iex>ReversiEngine.Ruler.move(pid, :black)
@@ -57,7 +57,7 @@ defmodule ReversiEngine.Ruler do
         iex>ReversiEngine.Ruler.pass(pid, :white)
         :ok
         iex>ReversiEngine.Ruler.show_state(pid)
-        :black_turn
+        :black
         iex>ReversiEngine.Ruler.pass(pid, :white)
         :error
         iex>ReversiEngine.Ruler.pass(pid, :black)
@@ -120,15 +120,15 @@ defmodule ReversiEngine.Ruler do
   ##Ejemplo
         iex>{:ok, pid} = ReversiEngine.Ruler.start_link()
         iex>ReversiEngine.Ruler.show_state(pid)
-        :white_turn
+        :white
         iex>ReversiEngine.Ruler.move(pid, :white)
         :ok
         iex>ReversiEngine.Ruler.show_state(pid)
-        :black_turn
+        :black
         iex>ReversiEngine.Ruler.move(pid, :black)
         :ok
         iex>ReversiEngine.Ruler.show_state(pid)
-        :white_turn
+        :white
         iex>ReversiEngine.Ruler.win(pid, :white)
         :ok
         iex>ReversiEngine.Ruler.show_state(pid)
@@ -139,59 +139,59 @@ defmodule ReversiEngine.Ruler do
     GenStateMachine.call(fsm, :current_state)
   end
 
-  def white_turn({:call, from}, {:move, :white}, state_data) do
-    {:next_state, :black_turn, state_data, {:reply, from, :ok}}
+  def white({:call, from}, {:move, :white}, state_data) do
+    {:next_state, :black, state_data, {:reply, from, :ok}}
   end
 
-  def white_turn({:call, from}, {:retire, :white}, state_data) do
+  def white({:call, from}, {:retire, :white}, state_data) do
     {:next_state, :black_won, state_data, {:reply, from, :ok}}
   end
 
-  def white_turn({:call, from}, {:pass, :white}, state_data) do
-    {:next_state, :black_turn, state_data, {:reply, from, :ok}}
+  def white({:call, from}, {:pass, :white}, state_data) do
+    {:next_state, :black, state_data, {:reply, from, :ok}}
   end
 
-  def white_turn({:call, from}, {:win, :white}, state_data) do
+  def white({:call, from}, {:win, :white}, state_data) do
     {:next_state, :white_won, state_data, {:reply, from, :ok}}
   end
 
-  def white_turn({:call, from}, {:win, :black}, state_data) do
+  def white({:call, from}, {:win, :black}, state_data) do
     {:next_state, :black_won, state_data, {:reply, from, :ok}}
   end
 
-  def white_turn({:call, from}, :current_state, _state_data) do
-    {:keep_state_and_data, {:reply, from, :white_turn}}
+  def white({:call, from}, :current_state, _state_data) do
+    {:keep_state_and_data, {:reply, from, :white}}
   end
 
-  def white_turn({:call, from}, _, _state_data) do
+  def white({:call, from}, _, _state_data) do
     {:keep_state_and_data, {:reply, from, :error}}
   end
 
-  def black_turn({:call, from}, {:move, :black}, state_data) do
-    {:next_state, :white_turn, state_data, {:reply, from, :ok}}
+  def black({:call, from}, {:move, :black}, state_data) do
+    {:next_state, :white, state_data, {:reply, from, :ok}}
   end
 
-  def black_turn({:call, from}, {:pass, :black}, state_data) do
-    {:next_state, :white_turn, state_data, {:reply, from, :ok}}
+  def black({:call, from}, {:pass, :black}, state_data) do
+    {:next_state, :white, state_data, {:reply, from, :ok}}
   end
 
-  def black_turn({:call, from}, {:retire, :black}, state_data) do
+  def black({:call, from}, {:retire, :black}, state_data) do
     {:next_state, :white_won, state_data, {:reply, from, :ok}}
   end
 
-  def black_turn({:call, from}, {:win, :black}, state_data) do
+  def black({:call, from}, {:win, :black}, state_data) do
     {:next_state, :black_won, state_data, {:reply, from, :ok}}
   end
 
-  def black_turn({:call, from}, {:win, :white}, state_data) do
+  def black({:call, from}, {:win, :white}, state_data) do
     {:next_state, :white_won, state_data, {:reply, from, :ok}}
   end
 
-  def black_turn({:call, from}, :current_state, _state_data) do
-    {:keep_state_and_data, {:reply, from, :black_turn}}
+  def black({:call, from}, :current_state, _state_data) do
+    {:keep_state_and_data, {:reply, from, :black}}
   end
 
-  def black_turn({:call, from}, _, _state_data) do
+  def black({:call, from}, _, _state_data) do
     {:keep_state_and_data, {:reply, from, :error}}
   end
 

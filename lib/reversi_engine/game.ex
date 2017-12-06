@@ -4,7 +4,7 @@ defmodule ReversiEngine.Game do
   """
   use GenServer
 
-  alias ReversiEngine.{Game, Ruler, Box, MovementValidator}
+  alias ReversiEngine.{Ruler, MovementValidator, BoardGenerator}
 
   defstruct [board: nil, ruler: nil]
 
@@ -28,10 +28,10 @@ defmodule ReversiEngine.Game do
     GenServer.call(pid, :current_state)
   end
 
-  def init(name) do
+  def init(_name) do
     {:ok, fsm} = Ruler.start_link
     board = Application.get_env(:reversi_engine, :board_2)[:value]
-    {:ok, %{board: board, ruler: fsm}}
+    {:ok, {board, fsm}}
   end
 
   def handle_call(:current_state, _from, state) do
@@ -39,32 +39,35 @@ defmodule ReversiEngine.Game do
     {:reply, {:ok, board: state[:board]}, state}
   end
 
-  def handle_call({:retire, player}, _from, %{board: board, ruler: fsm}) do
+  def handle_call({:retire, player}, _from, {board, fsm}) do
     #TODO por implementar
-    {:reply, {:error, %{board: board}}, %{board: board, ruler: fsm}}
+    {:reply, {:error, %{board: board}}, {board, fsm}}
   end
 
-  def handle_call({:pass, player}, _from, %{board: board, ruler: fsm}) do
+  def handle_call({:pass, player}, _from, {board, fsm}) do
     #TODO por implementar
-    {:reply, {:error, %{board: board}}, %{board: board, ruler: fsm}}
+    {:reply, {:error, %{board: board}}, {board, fsm}}
   end
 
-  def handle_call({:move, box, player}, _from, %{board: board, ruler: fsm}) do
+  def handle_call({:move, box, player}, _from, {board, fsm}) do
     case MovementValidator.validate_movement(board, get_color(player), box) do
       [] ->
-        {:reply, {:error, %{board: board}}, %{board: board, ruler: fsm}}
+        {:reply, {:error, %{board: board}}, {board, fsm}}
       movs ->
-        {:reply, {:ok, %{board: board, movs: movs}}, %{board: board, ruler: fsm}}
+        #TODO validar que el siguiente jugador puede mover y si no puede
+        # comprobar si se ha alcanzado el final de la partida
+        try_move(board, fsm, player,  movs ++ [box])
     end
   end
 
-  defp try_move(board, player, box, ruler_pid) do
-    case Ruler.move(ruler_pid, player) do
+  defp try_move(board, fsm, player, colored_boxes) do
+    case Ruler.move(fsm, player) do
       :ok ->
-        #TODO por implementar
-        {:reply, {:error, %{board: board}}, %{board: board, ruler: fsm}}
+        color = get_color(player)
+        board = BoardGenerator.calc_board(board, color, colored_boxes)
+        {:reply, {:ok, %{board: board}}, {board, fsm}}
       _ ->
-        {:reply, {:error, %{board: board}}, %{board: board, ruler: fsm}}
+        {:reply, {:error, %{board: board}}, {board, fsm}}
 
     end
   end
