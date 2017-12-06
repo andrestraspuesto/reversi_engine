@@ -4,7 +4,7 @@ defmodule ReversiEngine.Game do
   """
   use GenServer
 
-  alias ReversiEngine.{Ruler, MovementValidator, BoardGenerator}
+  alias ReversiEngine.{Ruler, MovementValidator, BoardGenerator, Evaluator}
 
   defstruct [board: nil, ruler: nil]
 
@@ -44,11 +44,6 @@ defmodule ReversiEngine.Game do
     {:reply, {:error, %{board: board}}, {board, fsm}}
   end
 
-  def handle_call({:pass, player}, _from, {board, fsm}) do
-    #TODO por implementar
-    {:reply, {:error, %{board: board}}, {board, fsm}}
-  end
-
   def handle_call({:move, box, player}, _from, {board, fsm}) do
     case MovementValidator.validate_movement(board, get_color(player), box) do
       [] ->
@@ -61,15 +56,22 @@ defmodule ReversiEngine.Game do
   end
 
   defp try_move(board, fsm, player, colored_boxes) do
-    case Ruler.move(fsm, player) do
-      :ok ->
-        color = get_color(player)
-        board = BoardGenerator.calc_board(board, color, colored_boxes)
-        {:reply, {:ok, %{board: board}}, {board, fsm}}
-      _ ->
-        {:reply, {:error, %{board: board}}, {board, fsm}}
+    Ruler.move(fsm, player)
+    |> try_move(board, fsm, player, colored_boxes)
+  end
 
-    end
+  defp try_move(:ok, board, fsm, player, colored_boxes) do
+    color = get_color(player)
+    b = BoardGenerator.calc_board(board, color, colored_boxes)
+    next_player = Ruler.show_state(fsm)
+    c = get_color(next_player)
+    mov = Evaluator.calc_movements(b, c, &MovementValidator.validate_movement/3)
+    #TODO evaluar si el siguiente jugador puede mover y si no puede si acabo
+    #la partida
+  end
+
+  defp try_move(:error, board, fsm, _player, _colored_boxes) do
+    {:reply, {:error, %{board: board}}, {board, fsm}}
   end
 
   defp get_color(player) when player == :black, do: "B"

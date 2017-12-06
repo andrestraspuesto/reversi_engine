@@ -3,7 +3,6 @@ defmodule ReversiEngine.MovementValidator do
 Contiene la funcionalidad encargada de determinar las casillas que cambiarán
 de color al colocar una ficha en unas coordenadas determinadas
 """
-  alias ReversiEngine.MovementValidator, as: Worker
 
   defmodule StepState do
     @moduledoc """
@@ -50,7 +49,7 @@ de color al colocar una ficha en unas coordenadas determinadas
 
   end
 
-  def validate_movement(board, color, coord, step_state, colored \\ []) do
+  defp validate_movement(board, color, coord, step_state, colored \\ []) do
     case in_range(board, coord) do
       false ->
         []
@@ -80,7 +79,7 @@ de color al colocar una ficha en unas coordenadas determinadas
           direction: &1,
           n_steps: 0
         }
-        Worker.validate_movement(board, color, next_step(coord, &1), n_state)
+        validate_movement(board, color, next_step(coord, &1), n_state)
       end))
       |> Enum.map(&Task.await/1)
       |> Enum.reduce(&(&1 ++ &2))
