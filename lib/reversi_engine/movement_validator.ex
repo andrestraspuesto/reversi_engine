@@ -50,8 +50,6 @@ de color al colocar una ficha en unas coordenadas determinadas
 
   end
 
-
-
   def validate_movement(board, color, coord, step_state, colored \\ []) do
     case in_range(board, coord) do
       false ->

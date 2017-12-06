@@ -13,7 +13,7 @@ defmodule ReversiEngine.Ruler do
         iex>ReversiEngine.Ruler.show_state(pid)
         :white_turn
   """
-  def start_link() do
+  def start_link do
     GenStateMachine.start_link(__MODULE__, {:white_turn, %{}})
   end
 
@@ -155,6 +155,10 @@ defmodule ReversiEngine.Ruler do
     {:next_state, :white_won, state_data, {:reply, from, :ok}}
   end
 
+  def white_turn({:call, from}, {:win, :black}, state_data) do
+    {:next_state, :black_won, state_data, {:reply, from, :ok}}
+  end
+
   def white_turn({:call, from}, :current_state, _state_data) do
     {:keep_state_and_data, {:reply, from, :white_turn}}
   end
@@ -177,6 +181,10 @@ defmodule ReversiEngine.Ruler do
 
   def black_turn({:call, from}, {:win, :black}, state_data) do
     {:next_state, :black_won, state_data, {:reply, from, :ok}}
+  end
+
+  def black_turn({:call, from}, {:win, :white}, state_data) do
+    {:next_state, :white_won, state_data, {:reply, from, :ok}}
   end
 
   def black_turn({:call, from}, :current_state, _state_data) do

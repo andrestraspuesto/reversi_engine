@@ -4,7 +4,7 @@ defmodule ReversiEngine.Evaluator do
   jugador determinado
   """
 
-  alias ReversiEngine.Evaluator
+  alias ReversiEngine.{Evaluator, Box}
 
   @doc """
   ##Cálculo de posibles movimientos.
@@ -29,11 +29,11 @@ defmodule ReversiEngine.Evaluator do
   se convertirían en cada caso.
 
   ##Ejemplo
-      iex>alias ReversiEngine.{Evaluator, MovementValidator}
+      iex>alias ReversiEngine.{Evaluator, MovementValidator, Box}
       iex>board = {{nil, nil, nil, nil},{nil, "B", "W", nil},{nil, "W", "B", nil},{nil, nil, nil, nil}}
       iex>color = "B"
       iex>Evaluator.calc_movements(board, color, &MovementValidator.validate_movement/3)
-      [%{n: 1, x: 2, y: 0}, %{n: 1, x: 3, y: 1},%{n: 1, x: 0, y: 2}, %{n: 1, x: 1, y: 3}]
+      [%ReversiEngine.Box{n: 1, x: 2, y: 0}, %ReversiEngine.Box{n: 1, x: 3, y: 1},%ReversiEngine.Box{n: 1, x: 0, y: 2}, %ReversiEngine.Box{n: 1, x: 1, y: 3}]
 
   """
   def calc_movements(board, color, validator) do
@@ -49,7 +49,6 @@ defmodule ReversiEngine.Evaluator do
     |> Enum.flat_map(&(&1))
   end
 
-
   def analyze_row(board, color, row, y, validator) do
     0..tuple_size(row) - 1
     |> Enum.filter(&is_nil(elem(row, &1)))
@@ -63,14 +62,13 @@ defmodule ReversiEngine.Evaluator do
   end
 
   def analyze_cell(board, color, y, x, validator) do
-    m = validator.(board, color, %{x: x, y: y})
+    m = validator.(board, color, %Box{x: x, y: y})
     case length(m) do
       0 ->
         nil
       n ->
-        %{x: x, y: y, n: n}
+        %Box{x: x, y: y, n: n}
     end
   end
-
 
 end

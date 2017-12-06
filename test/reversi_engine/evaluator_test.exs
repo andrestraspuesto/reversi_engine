@@ -1,14 +1,14 @@
 defmodule ReversiEngine.EvaluatorTest do
   use ExUnit.Case
   doctest ReversiEngine.Evaluator
-  alias ReversiEngine.{Evaluator, MovementValidator}
+  alias ReversiEngine.{Evaluator, MovementValidator, Box}
 
 
 
   test "tablero 1 movimientos de negras" do
     expected = [
-      %{n: 1, x: 2, y: 0}, %{n: 1, x: 3, y: 1},
-      %{n: 1, x: 0, y: 2}, %{n: 1, x: 1, y: 3}
+      %Box{n: 1, x: 2, y: 0}, %Box{n: 1, x: 3, y: 1},
+      %Box{n: 1, x: 0, y: 2}, %Box{n: 1, x: 1, y: 3}
     ]
 
     board = Application.get_env(:reversi_engine, :board_1)[:value]
@@ -19,9 +19,9 @@ defmodule ReversiEngine.EvaluatorTest do
 
   test "tablero 3 movimientos de negras" do
     expected = [
-      %{n: 1, x: 2, y: 4}, %{n: 1, x: 4, y: 2},
-      %{n: 2, x: 5, y: 2}, %{n: 1, x: 5, y: 3},
-      %{n: 1, x: 6, y: 6}, %{n: 1, x: 3, y: 5}
+      %Box{n: 1, x: 2, y: 4}, %Box{n: 1, x: 4, y: 2},
+      %Box{n: 2, x: 5, y: 2}, %Box{n: 1, x: 5, y: 3},
+      %Box{n: 1, x: 6, y: 6}, %Box{n: 1, x: 3, y: 5}
     ]
 
     board = Application.get_env(:reversi_engine, :board_3)[:value]
