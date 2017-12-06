@@ -9,33 +9,59 @@ defmodule ReversiEngine.BoardGenerator do
 
   ##Ejemplo:
         iex>alias ReversiEngine.BoardGenerator
-        iex>board = {{nil, nil, "B"},{"B", nil, nil}}
-        iex>colored_boxes = [%{x: 0, y: 0}, %{x: 2, y: 0}, %{x: 2, y: 1}]
+        iex>board = {{nil, nil, "B"}, {nil, nil, "B"},{"B", nil, nil}, {"B", "B", nil}}
+        iex>colored_boxes = [%{x: 0, y: 1}, %{x: 2, y: 1}, %{x: 2, y: 2}]
         iex>BoardGenerator.calc_board(board, "W", colored_boxes)
-        {{"W", nil, "W"},{"B", nil, "W"}}
+        {{nil, nil, "B"},{"W", nil, "W"},{"B", nil, "W"}, {"B", "B", nil}}
   """
   def calc_board(board, color, colored_boxes) do
-    #TODO implementar
-    #1.-Ordenar colored_boxes por y asc, x asc
     ordered_boxes = Box.order_boxes(colored_boxes)
-    #2.-recorrer las filas de board mientras board_y < min_colored_y añadir
-    #   si board_y = min_colored_y recorer la fila board_y añadiendo todas
-    #   las casillas que no esten en colored_boxes y sustituyendo las que esten
-    #   las colored_boxes que se van sustituyendo se eliminan se tiene un nuevo
-    #   valor para min_colored_y.
-    #3.-Se repite 2 hasta alcanzar el final de board y se devuelve new_board
     calc_board(board, {}, color, ordered_boxes, 0)
   end
 
-  defp calc_board({}, new_board,_, _, _) do
-    new_board
+  #Ya no quedan filas en el tablero
+  defp calc_board({}, new_board,_, _, _), do: new_board
+
+  #Ya no quedan casillas que cambien, se añaden directamente  las filas
+  #restantes del tablero
+  defp calc_board(board, new_board, color, [], y) do
+    add_row(board, new_board, color, [], y)
   end
 
-  defp calc_board(board, new_board, color, [box | tail] = colored_boxes, y) do
-    #TODO implementar
-
-    new_board
+  defp calc_board(board, new_board, color, [box | _tail] = colored_boxes, y) do
+    case box.y > y do
+      true ->
+        add_row(board, new_board, color, colored_boxes, y)
+      _ ->
+        {n_r, n_c} = calc_row(elem(board, 0), {}, color, colored_boxes, y, 0)
+        n_b = Tuple.append(new_board, n_r)
+        r_b = Tuple.delete_at(board, 0)
+        calc_board(r_b, n_b, color, n_c, y + 1)
+    end
   end
 
 
+  #Añade una fila completa al tablero
+  defp add_row(board, new_board, color, colored_boxes, y) do
+    n_b = Tuple.append(new_board, elem(board, 0))
+    r_b = Tuple.delete_at(board, 0)
+    calc_board(r_b, n_b, color, colored_boxes, y + 1)
+  end
+
+  defp calc_row({}, new_row, _color, colored_boxes, _y, _x) do
+    {new_row, colored_boxes}
+  end
+
+  #Compone la fila combinando las casillas del tablero original con las que
+  #deben cambiar de color
+  defp calc_row(row, new_row, color,[box | tail] = colored_boxes, y, x) do
+    {n_r, boxes} =
+      case box.y == y && box.x == x do
+        true ->
+          {Tuple.append(new_row, color), tail}
+        _ -> {Tuple.append(new_row, elem(row, 0)), colored_boxes}
+      end
+    r_r = Tuple.delete_at(row, 0)
+    calc_row(r_r, n_r, color, boxes, y, x + 1)
+  end
 end
