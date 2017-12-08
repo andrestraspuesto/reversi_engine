@@ -27,6 +27,13 @@ defmodule ReversiEngine.BoardGenerator do
         iex>colored_boxes = [%{x: 0, y: 6}, %{x: 2, y: 6}, %{x: 2, y: 6}]
         iex>BoardGenerator.calc_board(board, "W", colored_boxes)
         {{nil, nil, "B"}, {nil, nil, "B"},{"B", nil, nil}, {"B", "B", nil}}
+
+  ##Ejemplo 4 solo cambia una casilla:
+        iex>alias ReversiEngine.BoardGenerator
+        iex>board = {{nil, nil, "B"}, {nil, nil, "B"},{"B", nil, nil}, {"B", "B", nil}}
+        iex>colored_boxes = [%{x: 0, y: 0}]
+        iex>BoardGenerator.calc_board(board, "W", colored_boxes)
+        {{"W", nil, "B"}, {nil, nil, "B"},{"B", nil, nil}, {"B", "B", nil}}
   """
   def calc_board(board, color, colored_boxes) do
     ordered_boxes = Box.order_boxes(colored_boxes)
@@ -63,6 +70,12 @@ defmodule ReversiEngine.BoardGenerator do
 
   defp calc_row({}, new_row, _color, colored_boxes, _) do
     {new_row, colored_boxes}
+  end
+
+  defp calc_row(row, new_row, color, [], {y, x}) do
+    n_r = Tuple.append(new_row, elem(row, 0))
+    r_r = Tuple.delete_at(row, 0)
+    calc_row(r_r, n_r, color, [], {y, x + 1})
   end
 
   #Compone la fila combinando las casillas del tablero original con las que

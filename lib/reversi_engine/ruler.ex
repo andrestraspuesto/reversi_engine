@@ -159,6 +159,10 @@ defmodule ReversiEngine.Ruler do
     {:next_state, :black_won, state_data, {:reply, from, :ok}}
   end
 
+  def white({:call, from}, {:win, :none}, state_data) do
+    {:next_state, :none_won, state_data, {:reply, from, :ok}}
+  end
+
   def white({:call, from}, :current_state, _state_data) do
     {:keep_state_and_data, {:reply, from, :white}}
   end
@@ -181,6 +185,10 @@ defmodule ReversiEngine.Ruler do
 
   def black({:call, from}, {:win, :black}, state_data) do
     {:next_state, :black_won, state_data, {:reply, from, :ok}}
+  end
+
+  def black({:call, from}, {:win, :none}, state_data) do
+    {:next_state, :none_won, state_data, {:reply, from, :ok}}
   end
 
   def black({:call, from}, {:win, :white}, state_data) do
@@ -208,6 +216,14 @@ defmodule ReversiEngine.Ruler do
   end
 
   def black_won({:call, from}, _, _state_data) do
+    {:keep_state_and_data, {:reply, from, :error}}
+  end
+
+  def none_won({:call, from}, :current_state, _state_data) do
+    {:keep_state_and_data, {:reply, from, :none_won}}
+  end
+
+  def none_won({:call, from}, _, _state_data) do
     {:keep_state_and_data, {:reply, from, :error}}
   end
 
